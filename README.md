@@ -1,2 +1,2 @@
 # Handrecognition
-Sign language translator for school project using webcam and openCV and mediapipe
+Sign language translator for school project using webcam, openCV and mediapipe
