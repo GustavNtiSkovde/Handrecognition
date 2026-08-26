@@ -8,10 +8,10 @@ mp_draw = mp.solutions.drawing_utils #draws landmarks and connections "on" the w
 
 cap = cv2.VideoCapture(0) #OpenCV uses camera index 0 often the base webcam in this case laptop webcam
 
-hand_sign_window = "Overlay Window"
-window_open = False
-popup_img = cv2.imread('img/Aa.jpeg')
-cv2.namedWindow(hand_sign_window, cv2.WINDOW_AUTOSIZE)
+hand_sign_window = "Overlay Window" #Variable for the window name 
+window_open = False #Variable to check if window is open(True) or closed(False)
+popup_img = cv2.imread('img/Aa.jpeg') #Variable for test sign img
+
 
 while True:
     success, img = cap.read() #Reads the single frame from the video device 
@@ -22,8 +22,8 @@ while True:
         for handLms in result.multi_hand_landmarks: #if a hand is detected this for loop runs drawing landmarks
             mp_draw.draw_landmarks(img, handLms, mp_hands.HAND_CONNECTIONS) #Draws landmarks and connections between handmarks
         print("Hand Detected") #Show hand detected in console
-        
-        cv2.imshow(hand_sign_window, popup_img)
+        cv2.namedWindow(hand_sign_window, cv2.WINDOW_AUTOSIZE) #Creates window named after hand_sign_window and uses OpenCVs autosize to size window after img size
+        cv2.imshow(hand_sign_window, popup_img) #Show the window hand_sign_window and in that window show popup_img
         window_open = True
     else:
         if window_open == True: #If there is no detection of a hand but window_open is stll true, remove the hand_sign_window
