@@ -27,19 +27,28 @@ while True:
             mp_draw.draw_landmarks(img, handLms, mp_hands.HAND_CONNECTIONS) #Draws landmarks and connections between handmarks
 
             data_row = []
+            #Get the wrist point for reference
             base_x = handLms.landmark[0].x
             base_y = handLms.landmark[0].y
 
+            #Making all the 21 landmarks relative to the hand
             for lm in handLms.landmark:
                 data_row.append(lm.x - base_x)
                 data_row.append(lm.y - base_y)
-            
-            predicted_letter = model.predict([data_row])[0]
-            print(f"Predicted letter: {predicted_letter}")
 
-            letter_img = cv2.imread(f'img/{predicted_letter}{predicted_letter.lower()}.jpeg')
+            max_distance = max(max(abs(val) for val in data_row), 0.00001) #Max is used to find the bigest gap between landmarks which acts as the hands scale. ABS is used to get the absolute amount which makes it so no value is negative when devided and devide with 0.0....1 to not skipp deviding with 0
+            data_row = [val / max_distance for val in data_row] #Devide all values with the biggest value, we get all coords inbetween -1 and 1 
 
-            if letter_img is not None:
+            probability = model.predict_proba([data_row])[0] #Returns a list with the probabilites of what letters it can be totaling up to 100%
+            best_prob = np.argmax(probability) #Looks after the index with highest value "gets" that index value
+            predicted_letter = model.classes_[best_prob] #List that contains all the lables and uses the best prob index to get the letter
+            confidence = probability[best_prob] * 100 #Gather all the 100 best probability coords and multiply them with 100 to get percent
+            print(f"Predicted letter: {predicted_letter} with Confidence of {confidence:.1f}%")
+
+            img_path = f'img/{predicted_letter}{predicted_letter.lower()}.jpeg' #Shortend for letter_img
+            letter_img = cv2.imread(img_path)
+
+            if letter_img is not None: #Checks if letter_img has a value(img) or if its empty.
                 cv2.namedWindow(hand_sign_window, cv2.WINDOW_AUTOSIZE) #Creates window named after hand_sign_window and uses OpenCVs autosize to size window after img size
                 cv2.imshow(hand_sign_window, letter_img) #Show the window hand_sign_window and in that window show popup_img
                 window_open = True
