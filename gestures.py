@@ -11,7 +11,7 @@ mp_draw = mp.solutions.drawing_utils #draws landmarks and connections "on" the w
 cap = cv2.VideoCapture(0)
 
 #Open CSV file
-file = open('hand_cords.csv', mode='a', newline='')
+file = open('hand_coords.csv', mode='a', newline='')
 writer = csv.writer(file)
 
 current_lable = "A" #Changes depedning on what sign letter you want to record, Want to record C change this to C instead of A
