@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split #Splits arrays and matrices
 import pickle #In this case pickle is used to turne the ML model into a binary byte stream so it can be saved into a file
 
 #Read data from the csv file using pandas function
-data = pd.read_csv('hand_coords', header=None)
+data = pd.read_csv('hand_coords.csv', header=None)
 
 coords_x = data.iloc[:, :-1] #Choose all the cords
 coords_y = data.iloc[:, -1] #Choose all the lables to the coresponding coords
