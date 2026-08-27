@@ -49,16 +49,14 @@ while True:
             best_prob = np.argmax(probability) #Looks after the index with highest value "gets" that index value
             predicted_letter = model.classes_[best_prob] #List that contains all the lables and uses the best prob index to get the letter
             confidence = probability[best_prob] * 100 #Gather all the 100 best probability coords and multiply them with 100 to get percent
-            print(f"Predicted letter: {predicted_letter} with Confidence of {confidence:.1f}%")
+            #print(f"Predicted letter: {predicted_letter} with Confidence of {confidence:.1f}%")
 
-            
-
-            if confidence >= confidence_threshold:
-                if predicted_letter != current_stable_letter:
-                    current_stable_letter = predicted_letter
-                    letter_start_time = time.time()
-                elif time.time() - letter_start_time >= change_delay:
-                    shown_letter = current_stable_letter
+            if confidence >= confidence_threshold: #Checks if the confidence of it being the right letter is higher then threshold
+                if predicted_letter != current_stable_letter: #If not the same letter as last loop 
+                    current_stable_letter = predicted_letter #Change the stable letter to the predicted letter
+                    letter_start_time = time.time() #Start timer 
+                elif time.time() - letter_start_time >= change_delay: #Allows img of letter to be shown if timer - start time is bigger then change delay
+                    shown_letter = current_stable_letter #Change the shown letter to the current letter 
 
                     img_path = f'img/{predicted_letter}{predicted_letter.lower()}.jpeg' #Shortend for letter_img
                     letter_img = cv2.imread(img_path)
@@ -73,7 +71,7 @@ while True:
         if window_open: #If there is no detection of a hand but window_open is stll true, remove the hand_sign_window
             cv2.destroyWindow(hand_sign_window) #Destroys hand_sign_window
             window_open = False #Change varaible to false
-        print("No Hand")
+        #print("No Hand")
 
     cv2.imshow("Hand Tracker", img) #Opens window called handtracker which shows the landmarks and connections
     if cv2.waitKey(1) & 0xFF == ord('q'): #If q is pressed, close window and the loop breaks
