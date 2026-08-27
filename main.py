@@ -1,5 +1,10 @@
 import cv2
 import mediapipe as mp
+import pickle
+import numpy as np
+
+with open('model.p', 'rb') as f:
+    model = pickle.load(f)
 
 #_hands is a shortcut to the hands module in mediapipe, 
 mp_hands = mp.solutions.hands
@@ -10,7 +15,6 @@ cap = cv2.VideoCapture(0) #OpenCV uses camera index 0 often the base webcam in t
 
 hand_sign_window = "Overlay Window" #Variable for the window name 
 window_open = False #Variable to check if window is open(True) or closed(False)
-popup_img = cv2.imread('img/Aa.jpeg') #Variable for test sign img
 
 
 while True:
@@ -21,12 +25,26 @@ while True:
     if result.multi_hand_landmarks:
         for handLms in result.multi_hand_landmarks: #if a hand is detected this for loop runs drawing landmarks
             mp_draw.draw_landmarks(img, handLms, mp_hands.HAND_CONNECTIONS) #Draws landmarks and connections between handmarks
-        print("Hand Detected") #Show hand detected in console
-        cv2.namedWindow(hand_sign_window, cv2.WINDOW_AUTOSIZE) #Creates window named after hand_sign_window and uses OpenCVs autosize to size window after img size
-        cv2.imshow(hand_sign_window, popup_img) #Show the window hand_sign_window and in that window show popup_img
-        window_open = True
+
+            data_row = []
+            base_x = handLms.landmark[0].x
+            base_y = handLms.landmark[0].y
+
+            for lm in handLms.landmark:
+                data_row.append(lm.x - base_x)
+                data_row.append(lm.y - base_y)
+            
+            predicted_letter = model.predict([data_row])[0]
+            print(f"Predicted letter: {predicted_letter}")
+
+            letter_img = cv2.imread(f'img/{predicted_letter}{predicted_letter.lower()}.jpeg')
+
+            if letter_img is not None:
+                cv2.namedWindow(hand_sign_window, cv2.WINDOW_AUTOSIZE) #Creates window named after hand_sign_window and uses OpenCVs autosize to size window after img size
+                cv2.imshow(hand_sign_window, letter_img) #Show the window hand_sign_window and in that window show popup_img
+                window_open = True
     else:
-        if window_open == True: #If there is no detection of a hand but window_open is stll true, remove the hand_sign_window
+        if window_open: #If there is no detection of a hand but window_open is stll true, remove the hand_sign_window
             cv2.destroyWindow(hand_sign_window) #Destroys hand_sign_window
             window_open = False #Change varaible to false
         print("No Hand")
