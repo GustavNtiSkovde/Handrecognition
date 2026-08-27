@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import pickle
 import numpy as np
+import time 
 
 with open('model.p', 'rb') as f:
     model = pickle.load(f)
@@ -16,6 +17,11 @@ cap = cv2.VideoCapture(0) #OpenCV uses camera index 0 often the base webcam in t
 hand_sign_window = "Overlay Window" #Variable for the window name 
 window_open = False #Variable to check if window is open(True) or closed(False)
 
+#Variables for change delay
+current_stable_letter = None
+letter_start_time = 0 
+change_delay = 0.5
+confidence_threshold = 70.0
 
 while True:
     success, img = cap.read() #Reads the single frame from the video device 
@@ -45,14 +51,25 @@ while True:
             confidence = probability[best_prob] * 100 #Gather all the 100 best probability coords and multiply them with 100 to get percent
             print(f"Predicted letter: {predicted_letter} with Confidence of {confidence:.1f}%")
 
-            img_path = f'img/{predicted_letter}{predicted_letter.lower()}.jpeg' #Shortend for letter_img
-            letter_img = cv2.imread(img_path)
+            
 
-            if letter_img is not None: #Checks if letter_img has a value(img) or if its empty.
-                cv2.namedWindow(hand_sign_window, cv2.WINDOW_AUTOSIZE) #Creates window named after hand_sign_window and uses OpenCVs autosize to size window after img size
-                cv2.imshow(hand_sign_window, letter_img) #Show the window hand_sign_window and in that window show popup_img
-                window_open = True
+            if confidence >= confidence_threshold:
+                if predicted_letter != current_stable_letter:
+                    current_stable_letter = predicted_letter
+                    letter_start_time = time.time()
+                elif time.time() - letter_start_time >= change_delay:
+                    shown_letter = current_stable_letter
+
+                    img_path = f'img/{predicted_letter}{predicted_letter.lower()}.jpeg' #Shortend for letter_img
+                    letter_img = cv2.imread(img_path)
+
+                    if letter_img is not None: #Checks if letter_img has a value(img) or if its empty.
+                        cv2.namedWindow(hand_sign_window, cv2.WINDOW_AUTOSIZE) #Creates window named after hand_sign_window and uses OpenCVs autosize to size window after img size
+                        cv2.imshow(hand_sign_window, letter_img) #Show the window hand_sign_window and in that window show popup_img
+                        window_open = True
+
     else:
+        current_stable_letter = None #Resets current letter if no hand is detected
         if window_open: #If there is no detection of a hand but window_open is stll true, remove the hand_sign_window
             cv2.destroyWindow(hand_sign_window) #Destroys hand_sign_window
             window_open = False #Change varaible to false
