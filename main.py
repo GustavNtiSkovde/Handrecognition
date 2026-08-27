@@ -23,6 +23,11 @@ letter_start_time = 0
 change_delay = 0.5
 confidence_threshold = 70.0
 
+#Variables for word/sentence building
+word = []
+sentence = []
+
+
 while True:
     success, img = cap.read() #Reads the single frame from the video device 
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #OpenCV reads webcam using BGR(Blue Green Red) but Mediapipe wants RGB and COLOR_BGR2RGB converts it
@@ -56,7 +61,9 @@ while True:
                     current_stable_letter = predicted_letter #Change the stable letter to the predicted letter
                     letter_start_time = time.time() #Start timer 
                 elif time.time() - letter_start_time >= change_delay: #Allows img of letter to be shown if timer - start time is bigger then change delay
-                    shown_letter = current_stable_letter #Change the shown letter to the current letter 
+                    shown_letter = current_stable_letter #Change the shown letter to the current letter
+                    word.append(shown_letter)
+                    print([word])
 
                     img_path = f'img/{predicted_letter}{predicted_letter.lower()}.jpeg' #Shortend for letter_img
                     letter_img = cv2.imread(img_path)
