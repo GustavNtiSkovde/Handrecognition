@@ -40,8 +40,11 @@ while True:
 
                 #Making all the 21 landmarks relative to the hand
                 for lm in handLms.landmark:
-                    data_row.append(lm.x - base_x)
-                    data_row.append(lm.y - base_y)
+                    data_row.append(lm.x - base_x) #Landmanrks - base mark which is the wrist 
+                    data_row.append(lm.y - base_y) # -||-
+
+                max_distance = max(max(abs(val) for val in data_row), 0.00001) #Max is used to find the bigest gap between landmarks which acts as the hands scale. ABS is used to get the absolute amount which makes it so no value is negative when devided and devide with 0.0....1 to not skipp deviding with 0
+                data_row = [val / max_distance for val in data_row] #Devide all values with the biggest value, we get all coords inbetween -1 and 1 
 
                 data_row.append(current_lable) #Add in the lable that we choose in the code before, doing this here to get the lable on the last part of the list
                 writer.writerow(data_row) #Add data_row into the CSV file 
