@@ -14,7 +14,7 @@ cap = cv2.VideoCapture(0)
 file = open('hand_coords.csv', mode='a', newline='')
 writer = csv.writer(file)
 
-current_lable = "A" #Changes depedning on what sign letter you want to record, Want to record C change this to C instead of A
+current_lable = "Z" #Changes depedning on what sign letter you want to record, Want to record C change this to C instead of A
 
 #Variable for recording of data, how many samples you want, how many that is recorded and if it is recording.
 target_sample = 400
