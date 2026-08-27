@@ -12,7 +12,7 @@ coords_y = data.iloc[:, -1] #Choose all the lables to the coresponding coords
 model = RandomForestClassifier() #Create the model used to recognise what signs is used
 model.fit(coords_x, coords_y) #Tells the model what data from the csv it should use
 
-with open('model.p', 'wb') as f:
+with open('model.p', 'wb') as f: #Creates a file named model.p. wb is writing to the file in binary mode
     pickle.dump(model, f) #Turns the model into a byte stream and saves it into a file.
 
-print("Model training done and saved as model.p")
+print("Model training done and saved as model.p") #Tells user that model is done
