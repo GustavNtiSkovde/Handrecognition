@@ -22,9 +22,11 @@ current_stable_letter = None
 letter_start_time = 0 
 change_delay = 0.5
 confidence_threshold = 70.0
+last_executed_sign = None
 
 #Variables for word/sentence building
-word = []
+action_signs = {"Clear", "Space"}
+word = ""
 sentence = []
 
 
@@ -61,17 +63,39 @@ while True:
                     current_stable_letter = predicted_letter #Change the stable letter to the predicted letter
                     letter_start_time = time.time() #Start timer 
                 elif time.time() - letter_start_time >= change_delay: #Allows img of letter to be shown if timer - start time is bigger then change delay
-                    shown_letter = current_stable_letter #Change the shown letter to the current letter
-                    word.append(shown_letter)
-                    print([word])
 
-                    img_path = f'img/{predicted_letter}{predicted_letter.lower()}.jpeg' #Shortend for letter_img
+                    #Action signs
+                    if current_stable_letter != last_executed_sign: #Looks if the sign letter has changed 
+                        last_executed_sign = current_stable_letter #If so, change the least executed sign to the currently stable one
+
+                        if last_executed_sign in action_signs: #Looks if the executed signs lable is in the action sign list
+                            if last_executed_sign == "Clear": #If the lable from the csv file is equal to Clear then clear the string
+                                word = ""  #Clears the string word 
+                                print("Word removed!")
+                        else:
+                            word += last_executed_sign #Add the letter into the string
+                            print(word)
+
+
+                    # Choosing between sign letters and sign tool imgs to show
+                    if len(last_executed_sign) == 1: #Len() returns the length in a object, in this case the lable
+                        img_path = f'img/{last_executed_sign.capitalize()}{last_executed_sign.lower()}.jpeg'
+                    else:
+                        #Img path for sign tools
+                        img_path = f'img/{last_executed_sign.capitalize()}{last_executed_sign.lower()}.png'
+
                     letter_img = cv2.imread(img_path)
 
                     if letter_img is not None: #Checks if letter_img has a value(img) or if its empty.
                         cv2.namedWindow(hand_sign_window, cv2.WINDOW_AUTOSIZE) #Creates window named after hand_sign_window and uses OpenCVs autosize to size window after img size
                         cv2.imshow(hand_sign_window, letter_img) #Show the window hand_sign_window and in that window show popup_img
                         window_open = True
+
+                    shown_letter = last_executed_sign #Change the shown letter to the current letter
+                    img_path = f'img/{predicted_letter}{predicted_letter.lower()}.jpeg' #Shortend for letter_img
+                    letter_img = cv2.imread(img_path)
+
+                    
 
     else:
         current_stable_letter = None #Resets current letter if no hand is detected
