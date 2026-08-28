@@ -27,7 +27,7 @@ last_executed_sign = None
 #Variables for word/sentence building
 action_signs = {"Clear", "Space"}
 word = ""
-sentence = []
+sentence = ""
 
 
 while True:
@@ -69,12 +69,23 @@ while True:
                         last_executed_sign = current_stable_letter #If so, change the least executed sign to the currently stable one
 
                         if last_executed_sign in action_signs: #Looks if the executed signs lable is in the action sign list
+
                             if last_executed_sign == "Clear": #If the lable from the csv file is equal to Clear then clear the string
                                 word = ""  #Clears the string word 
                                 print("Word removed!")
+
+                            if last_executed_sign == "Space":
+                                if sentence == "":
+                                    sentence = word + " "
+                                    word = ""
+                                    print(sentence)
+                                else:
+                                    sentence += word + " "
+                                    word = ""
+                                    print(sentence)
                         else:
                             word += last_executed_sign #Add the letter into the string
-                            print(word)
+                            print(f'{sentence}{word}')
 
 
                     # Choosing between sign letters and sign tool imgs to show
@@ -91,9 +102,7 @@ while True:
                         cv2.imshow(hand_sign_window, letter_img) #Show the window hand_sign_window and in that window show popup_img
                         window_open = True
 
-                    shown_letter = last_executed_sign #Change the shown letter to the current letter
-                    img_path = f'img/{predicted_letter}{predicted_letter.lower()}.jpeg' #Shortend for letter_img
-                    letter_img = cv2.imread(img_path)
+
 
                     
 
