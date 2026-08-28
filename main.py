@@ -25,10 +25,11 @@ confidence_threshold = 70.0
 last_executed_sign = None
 
 #Variables for word/sentence building
-action_signs = {"Clear", "Space"}
+action_signs = {"Clear", "Space", "Remove"}
 word = ""
 sentence = ""
 
+#Use cv2 function to add text on screen
 
 while True:
     success, img = cap.read() #Reads the single frame from the video device 
@@ -75,18 +76,14 @@ while True:
                                 print("Word removed!")
 
                             if last_executed_sign == "Space":
-                                if sentence == "":
-                                    sentence = word + " "
-                                    word = ""
-                                    print(sentence)
-                                else:
-                                    sentence += word + " "
-                                    word = ""
-                                    print(sentence)
+                                sentence += word + " "
+                                word = ""
+                            if last_executed_sign == "Remove":
+                                sentence = ""
+                                word = ""
+                                print("Everything removed")
                         else:
                             word += last_executed_sign #Add the letter into the string
-                            print(f'{sentence}{word}')
-
 
                     # Choosing between sign letters and sign tool imgs to show
                     if len(last_executed_sign) == 1: #Len() returns the length in a object, in this case the lable
@@ -101,17 +98,17 @@ while True:
                         cv2.namedWindow(hand_sign_window, cv2.WINDOW_AUTOSIZE) #Creates window named after hand_sign_window and uses OpenCVs autosize to size window after img size
                         cv2.imshow(hand_sign_window, letter_img) #Show the window hand_sign_window and in that window show popup_img
                         window_open = True
-
-
-
-                    
-
     else:
         current_stable_letter = None #Resets current letter if no hand is detected
         if window_open: #If there is no detection of a hand but window_open is stll true, remove the hand_sign_window
             cv2.destroyWindow(hand_sign_window) #Destroys hand_sign_window
             window_open = False #Change varaible to false
-        #print("No Hand")
+
+    full_text = sentence + word
+
+    cv2.rectangle(img, (0, 0), (640, 50), (0, 0, 0), -1) #How big the text area  is, in the top of the window and with Z index of -1 so text is infront
+
+    cv2.putText(img, f"Text: {full_text}", (10, 35), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2) #Shows the text with pixle count and then choosing font what color, size and width
 
     cv2.imshow("Hand Tracker", img) #Opens window called handtracker which shows the landmarks and connections
     if cv2.waitKey(1) & 0xFF == ord('q'): #If q is pressed, close window and the loop breaks
