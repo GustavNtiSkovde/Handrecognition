@@ -21,7 +21,7 @@ window_open = False #Variable to check if window is open(True) or closed(False)
 current_stable_letter = None
 letter_start_time = 0 
 change_delay = 0.5
-confidence_threshold = 70.0
+confidence_threshold = 60.0
 last_executed_sign = None
 
 #Variables for word/sentence building
