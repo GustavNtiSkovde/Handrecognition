@@ -2,7 +2,8 @@ import cv2
 import mediapipe as mp
 import pickle
 import numpy as np
-import time 
+import time
+from spellchecker import SpellChecker 
 
 with open('model.p', 'rb') as f:
     model = pickle.load(f)
@@ -29,6 +30,7 @@ last_executed_sign = None
 action_signs = {"Clear", "Space", "Remove"}
 word = ""
 sentence = ""
+spell = SpellChecker()
 
 #Use cv2 function to add text on screen
 
@@ -77,7 +79,9 @@ while True:
                                 print("Word removed!")
 
                             if last_executed_sign == "Space": #IF lable = Space then add a the word into the sentence string and add a empty space after it
-                                sentence += word + " "
+                                correct_word = spell.correction(word).upper() #Use pyspellchecks .correction function to get back a word from the library that matches the wrongly spelled word the most. Uses upper to capitalize all letters in the word bc .correction returns it in lowercase.
+                                sentence += correct_word + " " #Adds the correct word into the sentence
+                                correct_word = ""
                                 word = "" #Emptys word string for next word
                             if last_executed_sign == "Remove":
                                 sentence = "" #Emptys the sentance string
