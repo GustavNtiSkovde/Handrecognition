@@ -21,6 +21,7 @@ window_open = False #Variable to check if window is open(True) or closed(False)
 current_stable_letter = None
 letter_start_time = 0 
 change_delay = 0.5
+double_spell_delay = 2.0
 confidence_threshold = 60.0
 last_executed_sign = None
 
@@ -75,15 +76,19 @@ while True:
                                 word = ""  #Clears the string word 
                                 print("Word removed!")
 
-                            if last_executed_sign == "Space":
+                            if last_executed_sign == "Space": #IF lable = Space then add a the word into the sentence string and add a empty space after it
                                 sentence += word + " "
-                                word = ""
+                                word = "" #Emptys word string for next word
                             if last_executed_sign == "Remove":
-                                sentence = ""
-                                word = ""
+                                sentence = "" #Emptys the sentance string
+                                word = "" # -||-
                                 print("Everything removed")
                         else:
                             word += last_executed_sign #Add the letter into the string
+                    elif current_stable_letter == last_executed_sign and (time.time() - letter_start_time >= double_spell_delay): #Looks if the sign is the same as last time and if the letter start time is the same is bigger then double delay
+                        if last_executed_sign not in action_signs: #Looks if the lable of the sign isnt in the action list
+                            word += last_executed_sign #Adds the letter into the string
+                            letter_start_time = time.time() #Resets timer to prevent it from adding a new letter each frame
 
                     # Choosing between sign letters and sign tool imgs to show
                     if len(last_executed_sign) == 1: #Len() returns the length in a object, in this case the lable
