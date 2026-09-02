@@ -28,7 +28,7 @@ cap = cv2.VideoCapture(0) #OpenCV uses camera index 0 often the base webcam in t
 hand_sign_window = "Overlay Window" #Variable for the window name 
 window_open = False #Variable to check if window is open(True) or closed(False)
 
-#Variables for change delay
+#Variables for change delay and writing
 current_stable_letter = None
 letter_start_time = 0 
 change_delay = 0.5
@@ -52,6 +52,18 @@ previous_x, previous_y = 0, 0 #Allways start in the top left corner of the scree
 smooth_factor = 20 #Higher smooth_factor = smoother but more delay 
 is_clicked = False
 ctrl_pressed = False
+
+def handle_write_mode(char_or_action, write_mode):
+    if write_mode == "WINDOW":
+        if char_or_action == "Space":
+            pag.press('space')
+        elif char_or_action == "Clear":
+            pag.hotkey('ctrl', 'backspace')
+        elif char_or_action == "Remove":
+            pag.hotkey('ctrl', 'a')
+            pag.press('backspace')
+        else:
+            pag.write(char_or_action)
 
 while True:
     success, raw_img = cap.read() #Reads the single frame from the video device
@@ -141,10 +153,11 @@ while True:
                                 if last_executed_sign == "Clear": #If the lable from the csv file is equal to Clear then clear the string
                                     word = ""  #Clears the string word 
                                     print("Word removed!")
-
+                                    handle_write_mode("Clear", write_mode)
                                 if last_executed_sign == "Space": #IF lable = Space then add a the word into the sentence string and add a empty space after it
                                     corrected = spell.correction(word) #Use pyspellchecks .correction function to get back a word from the library that matches the wrongly spelled word the most. Uses upper to capitalize all letters in the word bc .correction returns it in lowercase.
                                     correct_word = corrected if corrected is not None else word
+                                    handle_write_mode("Space", write_mode)
                                     sentence += correct_word.upper() + " " #Adds the correct word into the sentence
                                     correct_word = ""
                                     word = "" #Emptys word string for next word
@@ -152,11 +165,14 @@ while True:
                                     sentence = "" #Emptys the sentance string
                                     word = "" # -||-
                                     print("Everything removed")
+                                    handle_write_mode("Remove", write_mode)
                             else:
                                 word += last_executed_sign #Add the letter into the string
+                                handle_write_mode(last_executed_sign, write_mode)
                         elif current_stable_letter == last_executed_sign and (time.time() - letter_start_time >= double_spell_delay): #Looks if the sign is the same as last time and if the letter start time is the same is bigger then double delay
                             if last_executed_sign not in action_signs: #Looks if the lable of the sign isnt in the action list
                                 word += last_executed_sign #Adds the letter into the string
+                                handle_write_mode(last_executed_sign, write_mode)
                                 letter_start_time = time.time() #Resets timer to prevent it from adding a new letter each frame
 
                         # Choosing between sign letters and sign tool imgs to show
