@@ -157,9 +157,11 @@ while True:
                                 if last_executed_sign == "Space": #IF lable = Space then add a the word into the sentence string and add a empty space after it
                                     corrected = spell.correction(word) #Use pyspellchecks .correction function to get back a word from the library that matches the wrongly spelled word the most. Uses upper to capitalize all letters in the word bc .correction returns it in lowercase.
                                     correct_word = corrected if corrected is not None else word
-                                    handle_write_mode("Space", write_mode)
+                                    if write_mode == "WINDOW":
+                                        for _ in range(len(word)):
+                                            pag.press('backspace')
+                                        pag.write(correct_word.upper() + " ")  
                                     sentence += correct_word.upper() + " " #Adds the correct word into the sentence
-                                    correct_word = ""
                                     word = "" #Emptys word string for next word
                                 if last_executed_sign == "Remove":
                                     sentence = "" #Emptys the sentance string
