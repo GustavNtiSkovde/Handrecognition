@@ -35,6 +35,8 @@ change_delay = 0.5
 double_spell_delay = 2.0
 confidence_threshold = 60.0
 last_executed_sign = None
+write_mode = "WINDOW"
+alt_pressed = False
 
 #Variables for word/sentence building
 action_signs = {"Clear", "Space", "Remove"}
@@ -141,8 +143,9 @@ while True:
                                     print("Word removed!")
 
                                 if last_executed_sign == "Space": #IF lable = Space then add a the word into the sentence string and add a empty space after it
-                                    correct_word = spell.correction(word).upper() #Use pyspellchecks .correction function to get back a word from the library that matches the wrongly spelled word the most. Uses upper to capitalize all letters in the word bc .correction returns it in lowercase.
-                                    sentence += correct_word + " " #Adds the correct word into the sentence
+                                    corrected = spell.correction(word) #Use pyspellchecks .correction function to get back a word from the library that matches the wrongly spelled word the most. Uses upper to capitalize all letters in the word bc .correction returns it in lowercase.
+                                    correct_word = corrected if corrected is not None else word
+                                    sentence += correct_word.upper() + " " #Adds the correct word into the sentence
                                     correct_word = ""
                                     word = "" #Emptys word string for next word
                                 if last_executed_sign == "Remove":
@@ -195,7 +198,13 @@ while True:
     else:
         ctrl_pressed = False
 
-    
+    if keyboard.is_pressed('alt'): #Uses the imported keyboard function is_pressed to see if ctrl is pressed globaly on computer 
+            if not alt_pressed:
+                write_mode = "WINDOW" if write_mode == "PROGRAM" else "PROGRAM"
+                print(f'Switched to {write_mode} mode') #Displays that the mode switched
+                alt_pressed = True
+    else:
+        alt_pressed = False
 
 cap.release() #Turns of webcam
 cv2.destroyAllWindows() #Closes handtracker window
