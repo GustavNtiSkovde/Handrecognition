@@ -8,6 +8,7 @@ import pyautogui as pag
 import math
 import keyboard
 
+pag.PAUSE = 0 #Stops pyautogui from freezing openCV window when a function is triggerd
 pag.FAILSAFE = False #Prevents crash if mouse comes in the corner of the screen
 screen_width, screen_height = pag.size() #pyautogui to get the screen width and height
 
@@ -18,6 +19,7 @@ with open('model.p', 'rb') as f:
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(
     max_num_hands = 1,
+    model_complexity = 1,
     min_detection_confidence=0.7,
     min_tracking_confidence=0.7
 ) #Creates a hand detector object with rules
@@ -36,7 +38,7 @@ double_spell_delay = 2.0
 confidence_threshold = 60.0
 last_executed_sign = None
 write_mode = "WINDOW"
-alt_pressed = False
+shift_pressed = False
 
 #Variables for word/sentence building
 action_signs = {"Clear", "Space", "Remove"}
@@ -49,7 +51,7 @@ spell = SpellChecker()
 #Variables for moving mouse
 mode = "MOUSE" #Starts as Sign mode and then being swapped to write
 previous_x, previous_y = 0, 0 #Allways start in the top left corner of the screen
-smooth_factor = 20 #Higher smooth_factor = smoother but more delay 
+smooth_factor = 10 #Higher smooth_factor = smoother but more delay 
 is_clicked = False
 ctrl_pressed = False
 
@@ -104,12 +106,12 @@ while True:
 
                 distance = math.hypot(tx - ix, ty - iy) #Hypot used to calculate the distance between the index top and the thumb top
                 
-                cv2.circle(img, (ix, iy), 8, (255, 0, 0), cv2.FILLED) #Used to paints a circle around the index landmark
-                cv2.circle(img, (tx, ty), 8, (0, 0, 255), cv2.FILLED) #Used to paints a circle around the index landmark 
+                cv2.circle(img, (ix, iy), 12, (255, 0, 0), cv2.FILLED) #Used to paints a circle around the index landmark
+                cv2.circle(img, (tx, ty), 16, (0, 0, 255), cv2.FILLED) #Used to paints a circle around the index landmark 
 
-                if distance < 15:  #If the distance is smaller then sett number it counts as a click
-                    cv2.circle(img, (ix, iy), 12, (0, 255, 0), cv2.FILLED) #Paints the circle green to indicate a click
-                    cv2.circle(img, (tx, ty), 12, (0, 255, 0), cv2.FILLED) #Used to paints a circle around the index landmark
+                if distance < 20:  #If the distance is smaller then sett number it counts as a click
+                    cv2.circle(img, (ix, iy), 16, (0, 255, 0), cv2.FILLED) #Paints the circle green to indicate a click
+                    cv2.circle(img, (tx, ty), 16, (0, 255, 0), cv2.FILLED) #Used to paints a circle around the index landmark
                     if not is_clicked: #If is_click != true
                         pag.click() #Use pyautogui function to click
                         is_clicked = True
@@ -216,13 +218,13 @@ while True:
     else:
         ctrl_pressed = False
 
-    if keyboard.is_pressed('alt'): #Uses the imported keyboard function is_pressed to see if ctrl is pressed globaly on computer 
-            if not alt_pressed:
+    if keyboard.is_pressed('shift'): #Uses the imported keyboard function is_pressed to see if ctrl is pressed globaly on computer 
+            if not shift_pressed:
                 write_mode = "WINDOW" if write_mode == "PROGRAM" else "PROGRAM"
                 print(f'Switched to {write_mode} mode') #Displays that the mode switched
-                alt_pressed = True
+                shift_pressed = True
     else:
-        alt_pressed = False
+        shift_pressed = False
 
 cap.release() #Turns of webcam
 cv2.destroyAllWindows() #Closes handtracker window
