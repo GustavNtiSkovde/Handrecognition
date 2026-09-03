@@ -7,12 +7,20 @@ from spellchecker import SpellChecker
 import pyautogui as pag
 import math
 import keyboard
+import sys
+import os
+
+def get_resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 pag.PAUSE = 0 #Stops pyautogui from freezing openCV window when a function is triggerd
 pag.FAILSAFE = False #Prevents crash if mouse comes in the corner of the screen
 screen_width, screen_height = pag.size() #pyautogui to get the screen width and height
 
-with open('model.p', 'rb') as f:
+model_path = get_resource_path('model.p')
+with open(model_path, 'rb') as f:
     model = pickle.load(f)
 
 #_hands is a shortcut to the hands module in mediapipe, 
@@ -83,6 +91,7 @@ while True:
             mp_draw.draw_landmarks(img, handLms, mp_hands.HAND_CONNECTIONS) #Draws landmarks and connections between handmarks
 
             if mode == "MOUSE":
+                current_stable_letter = None #Resets letter to none for next time you swap to sign mode 
                 index_finger = handLms.landmark[8] #Get index finger top
                 thumb = handLms.landmark[4] #Get thumb top landmark
 
@@ -181,12 +190,14 @@ while True:
 
                         # Choosing between sign letters and sign tool imgs to show
                         if len(last_executed_sign) == 1: #Len() returns the length in a object, in this case the lable
-                            img_path = f'img/{last_executed_sign.capitalize()}{last_executed_sign.lower()}.jpeg'
+                            img_path = f'{last_executed_sign.capitalize()}{last_executed_sign.lower()}.jpeg'
                         else:
                             #Img path for sign tools
-                            img_path = f'img/{last_executed_sign.capitalize()}{last_executed_sign.lower()}.png'
+                            img_path = f'{last_executed_sign.capitalize()}{last_executed_sign.lower()}.png'
 
-                        letter_img = cv2.imread(img_path)
+                        path_to_img = get_resource_path(os.path.join('img', img_path))
+
+                        letter_img = cv2.imread(path_to_img)
 
                         if letter_img is not None: #Checks if letter_img has a value(img) or if its empty.
                             cv2.namedWindow(hand_sign_window, cv2.WINDOW_AUTOSIZE) #Creates window named after hand_sign_window and uses OpenCVs autosize to size window after img size
